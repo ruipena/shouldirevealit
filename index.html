@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Click to Reveal</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      background-color: #6a0dad;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    button {
+      padding: 16px 32px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.1s, opacity 0.2s;
+    }
+
+    button:hover { opacity: 0.9; transform: scale(1.03); }
+    button:active { transform: scale(0.97); }
+
+    #reveal-btn {
+      background: #fff;
+      color: #6a0dad;
+    }
+
+    #choice-group {
+      display: none;
+      gap: 20px;
+    }
+
+    #sure-btn {
+      background: #c084fc;
+      color: #fff;
+    }
+
+    #done-btn {
+      background: #fff;
+      color: #6a0dad;
+    }
+
+    /* Modal overlay */
+    #modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    #modal-overlay.show {
+      display: flex;
+    }
+
+    #modal-box {
+      background: white;
+      border-radius: 16px;
+      padding: 40px 60px;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+
+    #modal-message {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #6a0dad;
+      margin-bottom: 24px;
+    }
+
+    #modal-close {
+      background: #6a0dad;
+      color: white;
+      padding: 12px 28px;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <button id="reveal-btn">Click to reveal question</button>
+
+  <div id="choice-group">
+    <button id="sure-btn">Are you sure?</button>
+    <button id="done-btn">I'm done!</button>
+  </div>
+
+  <!-- Custom modal instead of alert() -->
+  <div id="modal-overlay">
+    <div id="modal-box">
+      <div id="modal-message"></div>
+      <button id="modal-close">OK</button>
+    </div>
+  </div>
+
+  <script>
+    function showModal(message) {
+      document.getElementById('modal-message').textContent = message;
+      document.getElementById('modal-overlay').classList.add('show');
+    }
+
+    document.getElementById('modal-close').addEventListener('click', function() {
+      document.getElementById('modal-overlay').classList.remove('show');
+    });
+
+    document.getElementById('reveal-btn').addEventListener('click', function() {
+      document.getElementById('reveal-btn').style.display = 'none';
+      document.getElementById('choice-group').style.display = 'flex';
+    });
+
+    document.getElementById('sure-btn').addEventListener('click', function() {
+      showModal('CURIOUS');
+    });
+
+    document.getElementById('done-btn').addEventListener('click', function() {
+      showModal('Smart choice');
+    });
+  </script>
+
+</body>
+</html>
