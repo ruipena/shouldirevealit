@@ -85,6 +85,20 @@
       padding: 12px 28px;
       font-size: 1rem;
     }
+
+    #back-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      font-size: 0.9rem;
+      padding: 10px 20px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    #back-btn:hover { background: rgba(255,255,255,0.35); }
   </style>
 </head>
 <body>
@@ -96,7 +110,9 @@
     <button id="done-btn">I'm done!</button>
   </div>
 
-  <!-- Custom modal instead of alert() -->
+  <button id="back-btn">&#8592; Back</button>
+
+  <!-- Custom modal -->
   <div id="modal-overlay">
     <div id="modal-box">
       <div id="modal-message"></div>
@@ -117,6 +133,7 @@
     document.getElementById('reveal-btn').addEventListener('click', function() {
       document.getElementById('reveal-btn').style.display = 'none';
       document.getElementById('choice-group').style.display = 'flex';
+      document.getElementById('back-btn').style.display = 'block';
     });
 
     document.getElementById('sure-btn').addEventListener('click', function() {
@@ -125,6 +142,12 @@
 
     document.getElementById('done-btn').addEventListener('click', function() {
       showModal('Smart choice');
+    });
+
+    document.getElementById('back-btn').addEventListener('click', function() {
+      document.getElementById('choice-group').style.display = 'none';
+      document.getElementById('reveal-btn').style.display = 'block';
+      document.getElementById('back-btn').style.display = 'none';
     });
   </script>
 
