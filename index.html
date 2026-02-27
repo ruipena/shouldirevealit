@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Click to Reveal</title>
+  <title>Should I Reveal It</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -15,6 +16,93 @@
       justify-content: center;
       font-family: 'Segoe UI', sans-serif;
     }
+
+    /* AUTH SCREEN */
+    #auth-screen {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      width: 340px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+
+    #auth-screen h1 {
+      color: #6a0dad;
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+    }
+
+    #auth-screen p {
+      color: #888;
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+    }
+
+    #auth-screen input {
+      width: 100%;
+      padding: 12px 16px;
+      margin-bottom: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border 0.2s;
+    }
+
+    #auth-screen input:focus { border-color: #6a0dad; }
+
+    #auth-screen .primary-btn {
+      width: 100%;
+      padding: 12px;
+      background: #6a0dad;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: opacity 0.2s;
+    }
+
+    #auth-screen .primary-btn:hover { opacity: 0.88; }
+
+    #auth-screen .toggle-link {
+      color: #6a0dad;
+      font-size: 0.9rem;
+      cursor: pointer;
+      text-decoration: underline;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+
+    #auth-error {
+      color: red;
+      font-size: 0.85rem;
+      margin-bottom: 10px;
+      min-height: 18px;
+    }
+
+    /* MAIN APP */
+    #app-screen { display: none; text-align: center; }
+
+    #logout-btn {
+      position: fixed;
+      top: 16px;
+      right: 20px;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    #logout-btn:hover { background: rgba(255,255,255,0.35); }
 
     button {
       padding: 16px 32px;
@@ -29,67 +117,11 @@
     button:hover { opacity: 0.9; transform: scale(1.03); }
     button:active { transform: scale(0.97); }
 
-    #reveal-btn {
-      background: #fff;
-      color: #6a0dad;
-    }
+    #reveal-btn { background: #fff; color: #6a0dad; }
 
-    #choice-group {
-      display: none;
-      gap: 20px;
-    }
-
-    #sure-btn {
-      background: #c084fc;
-      color: #fff;
-    }
-
-    #done-btn {
-      background: #fff;
-      color: #6a0dad;
-    }
-
-    #modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-    }
-
-    #modal-overlay.show {
-      display: flex;
-    }
-
-    #modal-box {
-      background: white;
-      border-radius: 16px;
-      padding: 40px 60px;
-      text-align: center;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-    }
-
-    #modal-img {
-      width: 180px;
-      margin-bottom: 20px;
-      display: none;
-    }
-
-    #modal-message {
-      font-size: 2rem;
-      font-weight: 800;
-      color: #6a0dad;
-      margin-bottom: 24px;
-    }
-
-    #modal-close {
-      background: #6a0dad;
-      color: white;
-      padding: 12px 28px;
-      font-size: 1rem;
-    }
+    #choice-group { display: none; gap: 20px; }
+    #sure-btn { background: #c084fc; color: #fff; }
+    #done-btn { background: #fff; color: #6a0dad; }
 
     #back-btn {
       position: fixed;
@@ -104,19 +136,70 @@
     }
 
     #back-btn:hover { background: rgba(255,255,255,0.35); }
+
+    /* MODAL */
+    #modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    #modal-overlay.show { display: flex; }
+
+    #modal-box {
+      background: white;
+      border-radius: 16px;
+      padding: 40px 60px;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+
+    #modal-img { width: 180px; margin-bottom: 20px; display: none; }
+
+    #modal-message {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #6a0dad;
+      margin-bottom: 24px;
+    }
+
+    #modal-close {
+      background: #6a0dad;
+      color: white;
+      padding: 12px 28px;
+      font-size: 1rem;
+    }
   </style>
 </head>
 <body>
 
-  <button id="reveal-btn">Click to reveal question</button>
-
-  <div id="choice-group">
-    <button id="sure-btn">Are you sure?</button>
-    <button id="done-btn">I'm done!</button>
+  <!-- AUTH SCREEN -->
+  <div id="auth-screen">
+    <h1>Should I Reveal It?</h1>
+    <p id="auth-subtitle">Sign in to continue</p>
+    <div id="auth-error"></div>
+    <input type="email" id="email-input" placeholder="Email" />
+    <input type="password" id="password-input" placeholder="Password" />
+    <button class="primary-btn" id="auth-btn">Sign In</button>
+    <button class="toggle-link" id="toggle-auth">Don't have an account? Sign up</button>
   </div>
 
-  <button id="back-btn">&#8592; Back</button>
+  <!-- MAIN APP -->
+  <div id="app-screen">
+    <button id="logout-btn">Log out</button>
+    <button id="reveal-btn">Click to reveal question</button>
+    <div id="choice-group">
+      <button id="sure-btn">Are you sure?</button>
+      <button id="done-btn">I'm done!</button>
+    </div>
+    <button id="back-btn">&#8592; Back</button>
+  </div>
 
+  <!-- MODAL -->
   <div id="modal-overlay">
     <div id="modal-box">
       <img id="modal-img" src="monkey.png" alt="Curious monkey">
@@ -126,6 +209,65 @@
   </div>
 
   <script>
+    const SUPABASE_URL = 'https://dbguykcvqxkkeyqdvtca.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_JbLAHRgDb96yYiE1mrqcug_8lxZhMvc';
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let isSignUp = false;
+
+    // Check if already logged in
+    sb.auth.getSession().then(({ data }) => {
+      if (data.session) showApp();
+    });
+
+    // Toggle between sign in / sign up
+    document.getElementById('toggle-auth').addEventListener('click', function() {
+      isSignUp = !isSignUp;
+      document.getElementById('auth-btn').textContent = isSignUp ? 'Sign Up' : 'Sign In';
+      document.getElementById('auth-subtitle').textContent = isSignUp ? 'Create an account' : 'Sign in to continue';
+      document.getElementById('toggle-auth').textContent = isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up";
+      document.getElementById('auth-error').textContent = '';
+    });
+
+    // Auth button
+    document.getElementById('auth-btn').addEventListener('click', async function() {
+      const email = document.getElementById('email-input').value.trim();
+      const password = document.getElementById('password-input').value;
+      const errorEl = document.getElementById('auth-error');
+      errorEl.textContent = '';
+
+      if (!email || !password) { errorEl.textContent = 'Please fill in all fields.'; return; }
+
+      let result;
+      if (isSignUp) {
+        result = await sb.auth.signUp({ email, password });
+      } else {
+        result = await sb.auth.signInWithPassword({ email, password });
+      }
+
+      if (result.error) {
+        errorEl.textContent = result.error.message;
+      } else {
+        showApp();
+      }
+    });
+
+    // Logout
+    document.getElementById('logout-btn').addEventListener('click', async function() {
+      await sb.auth.signOut();
+      document.getElementById('app-screen').style.display = 'none';
+      document.getElementById('auth-screen').style.display = 'block';
+      document.getElementById('email-input').value = '';
+      document.getElementById('password-input').value = '';
+    });
+
+    function showApp() {
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('app-screen').style.display = 'block';
+    }
+
+    // App logic
     function showModal(message) {
       document.getElementById('modal-message').textContent = message;
       document.getElementById('modal-img').style.display = message === 'CURIOUS' ? 'block' : 'none';
@@ -142,13 +284,8 @@
       document.getElementById('back-btn').style.display = 'block';
     });
 
-    document.getElementById('sure-btn').addEventListener('click', function() {
-      showModal('CURIOUS');
-    });
-
-    document.getElementById('done-btn').addEventListener('click', function() {
-      showModal('Smart choice');
-    });
+    document.getElementById('sure-btn').addEventListener('click', function() { showModal('CURIOUS'); });
+    document.getElementById('done-btn').addEventListener('click', function() { showModal('Smart choice'); });
 
     document.getElementById('back-btn').addEventListener('click', function() {
       document.getElementById('choice-group').style.display = 'none';
